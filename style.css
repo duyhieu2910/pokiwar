@@ -1,0 +1,233 @@
+/* ========================================= */
+/* 1. THIẾT LẬP CHUNG & CO GIÃN (SCALING)    */
+/* ========================================= */
+body { 
+    margin: 0; 
+    min-height: 100vh; 
+    background: url('picture/Background.png') center/cover fixed; 
+    color: white; 
+    font-family: 'Segoe UI', Tahoma, sans-serif; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+    overflow: hidden; /* Tránh hiện thanh cuộn khi thu nhỏ tab */
+}
+
+/* Container hỗ trợ logic.js thu phóng theo tỉ lệ window */
+#game-container { 
+    transform-origin: top center; 
+    transition: transform 0.1s ease-out; 
+    width: 1100px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+
+/* ========================================= */
+/* 2. HUD TOP (HP, MANA, NỘ - HIỆN SỐ)       */
+/* ========================================= */
+#top-hud { 
+    width: 1050px; 
+    margin: 15px auto; 
+    display: flex; 
+    justify-content: space-between; 
+    position: relative; 
+    z-index: 100; 
+}
+
+.hud-player { 
+    width: 450px; 
+    background: rgba(20, 20, 20, 0.9); 
+    border: 2px solid #00d2ff; 
+    padding: 10px; 
+    backdrop-filter: blur(5px); 
+    box-shadow: 0 5px 15px rgba(0,0,0,0.5); 
+}
+
+/* Vát góc HUD chuẩn Pokiwar */
+.hud-left { clip-path: polygon(0 0, 100% 0, 92% 100%, 0 100%); }
+.hud-right { clip-path: polygon(0 0, 100% 0, 100% 100%, 8% 100%); }
+
+.hud-name { 
+    font-size: 18px; 
+    font-weight: 900; 
+    margin-bottom: 5px; 
+    text-shadow: 1px 1px 2px #000; 
+}
+
+/* --- CẤU TRÚC THANH CHỈ SỐ --- */
+.hp-track, .mana-track, .no-track { 
+    position: relative; 
+    overflow: hidden; 
+    border: 2px solid #fff; 
+    background: #000; 
+}
+
+/* Thanh máu (HP) */
+.hp-track { width: 100%; height: 28px; margin-bottom: 5px; }
+.hp-red { position: absolute; height: 100%; width: 100%; background: linear-gradient(180deg, #ff3300, #990000); z-index: 1; }
+.hp-green { position: absolute; height: 100%; width: 100%; background: linear-gradient(180deg, #00ff00, #006600); z-index: 2; transition: 0.3s; }
+
+/* Thanh Mana & Nộ */
+.mana-track, .no-track { width: 140px; height: 18px; margin-top: 5px; }
+.mana-fill { position: absolute; height: 100%; background: linear-gradient(180deg, #0099ff, #00ccff); z-index: 1; transition: 0.3s; }
+.no-fill { position: absolute; height: 100%; background: linear-gradient(180deg, #ff9900, #ffcc00); z-index: 1; transition: 0.3s; }
+
+/* Chữ hiển thị số đè lên thanh */
+.bar-text, .hp-text { 
+    position: absolute; 
+    width: 100%; 
+    text-align: center; 
+    font-weight: 900; 
+    z-index: 10; 
+    color: white; 
+    text-shadow: 1px 1px 2px #000; 
+}
+.hp-text { top: 3px; font-size: 16px; }
+.bar-text { top: 0px; font-size: 12px; }
+
+/* --- CĂN CHỈNH GIÁP CHUẨN --- */
+.sub-bars { display: flex; justify-content: space-between; margin-top: 5px; align-items: center; }
+.sub-bars-right { flex-direction: row; }
+.giap-badge { font-weight: bold; color: #00d2ff; font-size: 14px; text-shadow: 1px 1px 2px #000; }
+.player-giap { margin-right: 30px; order: -1; }
+
+/* ========================================= */
+/* 3. TRUNG TÂM (ĐỒNG HỒ & SKILL)            */
+/* ========================================= */
+.hud-center { 
+    position: absolute; 
+    left: 50%; 
+    transform: translateX(-50%); 
+    top: -10px; 
+    display: flex; 
+    flex-direction: column; 
+    align-items: center; 
+}
+
+.timer-hexagon { 
+    width: 85px; 
+    height: 85px; 
+    background: radial-gradient(circle, #fff176, #fbc02d); 
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    border: 3px solid #fff; 
+    box-shadow: 0 0 15px #ffcc00; 
+}
+
+#hud-timer-text { font-size: 42px; font-weight: 900; color: #d32f2f; text-shadow: 1px 1px 0 #fff; }
+#turn-indicator { margin-top: 5px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px #000; }
+
+/* Các nút bấm */
+#btn-ready { margin-top: 10px; padding: 8px 25px; background: #2e7d32; color: #fff; border: 2px solid #fff; cursor: pointer; font-weight: bold; border-radius: 5px; }
+#btn-ulti { margin-top: 10px; padding: 6px 18px; background: #9900cc; color: white; border: 2px solid #fff; border-radius: 5px; font-weight: bold; cursor: pointer; transition: 0.2s; }
+#btn-ulti:disabled { background: #444; opacity: 0.5; cursor: not-allowed; }
+#btn-ulti:not(:disabled):hover { background: #cc00ff; box-shadow: 0 0 15px #cc00ff; }
+
+/* ========================================= */
+/* 4. BOARD GAME (KHUNG CỐ ĐỊNH & KỸ XẢO)    */
+/* ========================================= */
+#board-wrapper { position: relative; margin: 40px auto; display: flex; justify-content: center; }
+#game-board { 
+    display: none; 
+    grid-template-columns: repeat(8, 65px); 
+    grid-template-rows: repeat(8, 65px); 
+    gap: 5px; 
+    background: rgba(0,0,0,0.85); 
+    padding: 12px; 
+    border: 4px solid #555; 
+    border-radius: 12px; 
+    z-index: 20; 
+    position: relative; 
+}
+
+/* KHUNG GEMS */
+.gem { 
+    width: 65px; height: 65px; 
+    display: flex; justify-content: center; align-items: center; 
+    cursor: pointer; position: relative; border-radius: 10px; 
+}
+
+.gem img { 
+    width: 55px; height: 55px; pointer-events: none; 
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+/* Hiệu ứng chọn Kim Cương */
+.gem.selected { background: rgba(255,255,0,0.4); }
+.gem.selected img { transform: scale(1.15); filter: drop-shadow(0 0 5px #ff0); }
+
+/* ========================================= */
+/* 5. PET SPRITES                            */
+/* ========================================= */
+.pet-sprite { 
+    position: absolute; 
+    z-index: 5; 
+    display: none; 
+    background-size: contain; 
+    background-repeat: no-repeat; 
+    width: 200px; 
+    height: 200px; 
+}
+#pet-boss { transform: scaleX(-1); }
+
+/* ========================================= */
+/* 6. BANNER ĐIỆN ẢNH & OVERLAYS             */
+/* ========================================= */
+#ulti-hint { 
+    position: absolute; top: -40px; left: 50%; transform: translateX(-50%); 
+    color: #ffeb3b; font-weight: bold; display: none; z-index: 101; 
+    font-size: 18px; text-shadow: 2px 2px 4px #000; 
+}
+
+#turn-summary { 
+    position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+    background: rgba(0,0,0,0.9); display: none; padding: 15px; 
+    border: 2px solid #ffcc00; z-index: 200; gap: 10px; border-radius: 15px; 
+    flex-wrap: wrap; max-width: 300px; justify-content: center; 
+}
+.summary-item { text-align: center; color: white; font-weight: bold; font-size: 14px; margin: 5px; }
+
+/* BANNER THÔNG BÁO LƯỢT ĐI MỚI (POPUP) */
+.turn-banner {
+    position: absolute;
+    top: 40%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    background: rgba(0, 0, 0, 0.85);
+    border: 4px solid #fff;
+    border-radius: 15px;
+    padding: 20px 50px;
+    font-size: 45px;
+    font-weight: 900;
+    text-transform: uppercase;
+    white-space: nowrap;
+    z-index: 500;
+    opacity: 0;
+    pointer-events: none;
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s;
+}
+
+.turn-banner.show { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+.turn-banner.player-turn { color: #00ff00; border-color: #00ff00; box-shadow: 0 0 20px #00ff00; text-shadow: 2px 2px 5px #000; }
+.turn-banner.boss-turn { color: #ff3300; border-color: #ff3300; box-shadow: 0 0 20px #ff3300; text-shadow: 2px 2px 5px #000; }
+
+/* ========================================= */
+/* 7. TOOL CĂN CHỈNH VỊ TRÍ PET              */
+/* ========================================= */
+#tuner-panel { 
+    position: fixed; top: 10px; right: 10px; 
+    background: rgba(0,0,0,0.95); padding: 15px; border: 2px solid #00d2ff; 
+    z-index: 1000; color: white; width: 300px; border-radius: 10px; 
+}
+.tuner-row { display: flex; flex-direction: column; gap: 10px; }
+.tuner-col h4 { margin: 5px 0; color: #00d2ff; border-bottom: 1px solid #444; }
+.num-box { width: 60px; background: #000; color: #0f0; border: 1px solid #00d2ff; text-align: center; }
+
+#btn-tune { 
+    position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); 
+    background: #333; color: #fff; border: 1px solid #777; cursor: pointer; 
+    padding: 5px 15px; border-radius: 5px; 
+}
