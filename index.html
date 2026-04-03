@@ -2,70 +2,88 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Pokiwar Pro - Final Cascade</title>
+    <title>Pokiwar Pro - Đa Vũ Trụ</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body onresize="handleResize()">
     <div id="game-container">
-        <div id="top-hud">
-            <div class="hud-player hud-left" id="p1-area">
-                <div class="hud-name">BRO (PLAYER)</div>
-                <div class="hp-track">
-                    <div id="p1-hp-red" class="hp-red"></div>
-                    <div id="p1-hp-green" class="hp-green"></div>
-                    <span id="p1-hp-text" class="hp-text">100000/100000</span>
-                </div>
-                <div class="sub-bars">
-                    <div class="mana-track">
-                        <div id="p1-mana-fill" class="mana-fill"></div>
-                        <span id="p1-mana-text" class="bar-text">0/3000</span>
+        
+        <div id="selection-screen">
+            <h1>🔥 ĐẤU TRƯỜNG POKIWAR 🔥</h1>
+            
+            <div class="selection-section">
+                <h2>CHỌN PET CỦA BẠN</h2>
+                <div class="card-container" id="pet-cards">
                     </div>
-                    <div class="no-track">
-                        <div id="p1-no-fill" class="no-fill"></div>
-                        <span id="p1-no-text" class="bar-text">0/300</span>
-                    </div>
-                    <div class="giap-badge player-giap">Giáp: <span id="p1-giap-val">0%</span></div>
-                </div>
             </div>
 
-            <div class="hud-center">
-                <div class="timer-hexagon"><span id="hud-timer-text">15</span></div>
-                <button id="btn-ready" onclick="startGame()">SẴN SÀNG</button>
-                <div id="turn-indicator">CHỜ TRẬN ĐẤU...</div>
-                <button id="btn-ulti" onclick="activateUlti()" disabled>ULTI ⚡</button>
+            <div class="selection-section">
+                <h2>CHỌN BOSS ĐỐI ĐẦU</h2>
+                <div class="card-container" id="boss-cards">
+                    </div>
             </div>
 
-            <div class="hud-player hud-right" id="p2-area">
-                <div class="hud-name" style="text-align: right;">AI TRÙM</div>
-                <div class="hp-track">
-                    <div id="p2-hp-red" class="hp-red"></div>
-                    <div id="p2-hp-green" class="hp-green"></div>
-                    <span id="p2-hp-text" class="hp-text">100000/100000</span>
-                </div>
-                <div class="sub-bars sub-bars-right">
-                    <div class="giap-badge">Giáp: <span id="p2-giap-val">0%</span></div>
-                    <div class="no-track">
-                        <div id="p2-no-fill" class="no-fill"></div>
-                        <span id="p2-no-text" class="bar-text">0/300</span>
-                    </div>
-                    <div class="mana-track">
-                        <div id="p2-mana-fill" class="mana-fill"></div>
-                        <span id="p2-mana-text" class="bar-text">0/3000</span>
-                    </div>
-                </div>
-            </div>
+            <button id="btn-start-combat" onclick="startCombat()" disabled>VÀO TRẬN ⚔️</button>
         </div>
 
-        <div id="board-wrapper">
-            <div id="pet-bro" class="pet-sprite"></div> 
-            <div id="game-board">
+        <div id="combat-screen" style="display: none;">
+            <div id="top-hud">
+                <div class="hud-player hud-left" id="p1-area">
+                    <div class="hud-name" id="p1-name">BRO (PLAYER)</div>
+                    <div class="hp-track">
+                        <div id="p1-hp-red" class="hp-red"></div>
+                        <div id="p1-hp-green" class="hp-green"></div>
+                        <span id="p1-hp-text" class="hp-text">0/0</span>
+                    </div>
+                    <div class="sub-bars">
+                        <div class="mana-track">
+                            <div id="p1-mana-fill" class="mana-fill"></div>
+                            <span id="p1-mana-text" class="bar-text">0/3000</span>
+                        </div>
+                        <div class="no-track">
+                            <div id="p1-no-fill" class="no-fill"></div>
+                            <span id="p1-no-text" class="bar-text">0/300</span>
+                        </div>
+                        <div class="giap-badge player-giap">Giáp: <span id="p1-giap-val">0</span></div>
+                    </div>
                 </div>
-            
-            <div id="turn-banner" class="turn-banner"></div>
-            
-            <div id="pet-boss" class="pet-sprite"></div>
-            <div id="turn-summary"></div>
-            <button id="btn-tune" onclick="toggleTuner()">🛠️ Tool</button>
+
+                <div class="hud-center">
+                    <div class="timer-hexagon"><span id="hud-timer-text">15</span></div>
+                    <div id="turn-indicator">CHỜ TRẬN ĐẤU...</div>
+                    <button id="btn-ulti" onclick="activateUlti()" disabled>ULTI ⚡</button>
+                </div>
+
+                <div class="hud-player hud-right" id="p2-area">
+                    <div class="hud-name" id="p2-name" style="text-align: right;">AI TRÙM</div>
+                    <div class="hp-track">
+                        <div id="p2-hp-red" class="hp-red"></div>
+                        <div id="p2-hp-green" class="hp-green"></div>
+                        <span id="p2-hp-text" class="hp-text">0/0</span>
+                    </div>
+                    <div class="sub-bars sub-bars-right">
+                        <div class="giap-badge">Giáp: <span id="p2-giap-val">0</span></div>
+                        <div class="no-track">
+                            <div id="p2-no-fill" class="no-fill"></div>
+                            <span id="p2-no-text" class="bar-text">0/300</span>
+                        </div>
+                        <div class="mana-track">
+                            <div id="p2-mana-fill" class="mana-fill"></div>
+                            <span id="p2-mana-text" class="bar-text">0/3000</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="board-wrapper">
+                <div id="pet-bro" class="pet-sprite"></div> 
+                <div id="game-board"></div>
+                <div id="turn-banner" class="turn-banner"></div>
+                <div id="ulti-hint">🔥 CHỌN 3 HÀNG NGANG ĐỂ HỦY DIỆT 🔥</div>
+                <div id="turn-summary"></div>
+                <div id="pet-boss" class="pet-sprite"></div>
+                <button id="btn-tune" onclick="toggleTuner()">🛠️ Tool</button>
+            </div>
         </div>
     </div>
 
@@ -87,6 +105,8 @@
         </div>
     </div>
 
+    <script src="PetData.js"></script>
+    <script src="BossData.js"></script>
     <script src="Config.js"></script>
     <script src="logic.js"></script>
 </body>
